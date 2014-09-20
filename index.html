@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<base href="http://localhost/" />
+	<link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.css" />
+	<link rel="stylesheet" type="text/css" href="/css/style.css" />
+	<link rel="stylesheet" type="text/css" href="/css/jquery.jscrollpane.css" />
+	
+	
+</head>
+<body>
+	<div id="main">
+		<div class="instagram_logo_panel">
+			<a class="instagram_logo" href="javascript:void(0)"></a>
+		</div>
+        <div class="main_area">
+			
+			<div class="panel_area">
+				<div class="search_block">
+					<input type="text" id="tag_search" class="tag_search form-control" placeholder="Search for tags..."/>
+					<button type="submit" class="search_button glyphicon glyphicon-search" id="search_button"></button>
+				</div>
+			</div>
+			<div class="photo_area">
+				
+				
+			</div>
+			<div class="load_button_block invisible">
+				<button class="btn btn-default load_more" id="load_more">Load more</button>
+			</div>
+		</div>
+	</div>
+		<script type="text/template" id="photos">
+				<% _.each( photocollection, function( photo ){
+					//console.log(photo);
+				%>
+					<div class="photo_block">
+					<div class="author_block">
+						
+							<div class="ab_main_text">
+								<p class="ab_author_name comment_name tophoto" id="<%=photo.id%>"><%=photo.user.username%></p>
+								<p class="ab_time"><%=timeago(new Date(photo.created_time*1000).toISOString())%></p>
+							</div>
+							<div class="ab_avatar_block">
+								<img id="<%=photo.id%>" class="ab_avatar tophoto" src="<%=photo.user.profile_picture%>" alt="avatar" />
+							</div>
+						</a>
+						<div class="clear"></div>
+					</div>
+					<div class="image_properties">
+						<div class="image_card">
+							<a class="image_link" id="<%=photo.id%>" href="javascript:void(0)"><img id="<%=photo.id%>" class="image" src="<%=photo.images.standard_resolution.url%>" alt="" /></a>
+						</div>
+						<div class="image_likes_panel">
+							<button class="like_button"></button>
+							<span class="likes_quantity"><%=photo.likes.count%></span>
+						</div>
+						<div class="comment image_description">
+							<img class="comment_avatar" src="<%=photo.user.profile_picture%>" alt="avatar" />
+							<a class="comment_name" href="javascript:void(0)"><%=photo.user.username%></a>
+							<span class="comment_text">
+								<%=(photo.caption)==null?"":photo.caption.text%>
+							</span>
+						</div>
+						<div class="comments_section">
+							<%
+									if(appProp.get("comment_count")<photo.comments.count)
+									{
+							%>		
+										<div class="more_comments comment">
+											<span>
+												<%=(photo.comments.count-appProp.get("comment_count"))%> more comments
+											</span>
+										</div>
+							<%
+							}
+							%>
+							
+							<% var cnt=1;
+							_.each( photo.comments.data, function( comment ){ %>
+								<div class="comment<%if(cnt>appProp.get("comment_count")){%> hidden<%}cnt++;%>">
+									<img class="comment_avatar" src="<%=comment.from.profile_picture%>" alt="<%=comment.from.username%>" />
+									<a class="comment_name" href="javascript:void(0)"><%=comment.from.username%></a>
+									<span class="comment_text">
+										<%=comment.text%>
+									</span>
+								</div>
+							<%});%>
+							
+							<%
+							_.each( comments, function( comment ){ 
+								if(comment.photoid==photo.id)
+								{
+							%>
+								<div class="comment<%if(cnt>appProp.get("comment_count")){%> hidden<%}cnt++;%>">
+									<img class="comment_avatar" src="<%=comment.user.profile_picture%>" alt="<%=comment.user.name%>" />
+									<a class="comment_name" href="javascript:void(0)"><%=comment.user.name%></a>
+									<span class="comment_text">
+										<%=comment.text%>
+									</span>
+								</div>
+							<%}});%>
+						</div>
+						<div class="leave_comment_section">
+							<input type="text" class="leave_comment form-control" photoid="<%=photo.id%>" placeholder="Write a comment..." />
+						</div>
+						
+						
+					</div>
+					<div class="clear"></div>
+				</div>
+				<%
+					
+				}); %>
+				
+				
+			
+		</script>
+	<script type="text/template" id="photo_particular">
+        <div class="particular"> 
+					
+					<div class="particular_image_block">
+						<img class="particular_image" src="<%=photo.images.standard_resolution.url%>" alt="picture" />
+					</div>
+					<div class="particular_info_section">
+							<div class="comment image_description">
+								<img class="comment_avatar" src="<%=photo.user.profile_picture%>" alt="<%=photo.user.username%>" />
+								<a class="comment_name" href="javascript:void(0)"><%=photo.user.username%></a>
+								<p class="ab_time"><%=timeago(new Date(photo.created_time*1000).toISOString())%></p>
+								<span class="comment_text">
+									<%=(photo.caption)==null?"":photo.caption.text%>
+								</span>
+							</div>
+							<div class="comments_section">
+								<%
+							    _.each( photo.comments.data, function( comment ){ %>
+								<div class="comment">
+									<img class="comment_avatar" src="<%=comment.from.profile_picture%>" alt="<%=comment.from.username%>" />
+									<a class="comment_name" href="javascript:void(0)"><%=comment.from.username%></a>
+									<span class="comment_text">
+										<%=comment.text%>
+									</span>
+								</div>
+								<%});%>
+								
+								<%
+								_.each( comments, function( comment ){ 
+									if(comment.photoid==photo.id)
+									{
+								%>
+									<div class="comment">
+										<img class="comment_avatar" src="<%=comment.user.profile_picture%>" alt="<%=comment.user.username%>" />
+										<a class="comment_name" href="javascript:void(0)"><%=comment.user.username%></a>
+										<span class="comment_text">
+											<%=comment.text%>
+										</span>
+									</div>
+								<%}});%>
+							</div>
+							<div class="leave_comment_section">
+								<input type="text" class="leave_comment form-control" photoid="<%=photo.id%>" placeholder="Write a comment..." />
+							</div>
+					</div>
+					
+					<div class="clear"></div>
+				</div>    
+    </script>
+	<script type="text/template" id="comment">
+			<%console.log(comment)%>
+			<div class="comment">
+				<img class="comment_avatar" src="<%=comment.user.profile_picture%>" alt="<%=comment.user.name%>" />
+				<a class="comment_name" href="javascript:void(0)"><%=comment.user.name%></a>
+				<span class="comment_text">
+					<%=comment.text%>
+				</span>
+			</div>
+	</script>
+	<script data-main="/js/main" src="/js/require.js"></script>
+</body>
+</html>
+
+
