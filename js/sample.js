@@ -3,7 +3,7 @@ return {
 init: function () {
 var CLIENT_ID='1b3c911ea5c64e8bb1c6de123317bc97';
 var CLIENT_SECRET='2d9755c0ccf747439e77c1789520613f';
-var REDIRECT_URI='http://localhost';
+var REDIRECT_URI='http://vodkin38.github.io/instagram_api_test/';
 //GET ACCESS TOKEN FUNCTION...DUH
 function getAccessToken() {
 
