@@ -56,7 +56,7 @@ var Controller = Backbone.Router.extend({
 		{
 			if(appProperties.get("currentPhotoId"))
 			{
-				this.navigate("photos/"+appProperties.get("currentPhotoId"));
+				this.navigate("/photos/"+appProperties.get("currentPhotoId"));
 			}
 			else
 			{
@@ -69,7 +69,7 @@ var Controller = Backbone.Router.extend({
 					localStorage.removeItem('id');
 				}
 				else
-					this.navigate("photos");
+					this.navigate("/photos");
 				
 			}
 			//GETTING USER DATA
@@ -209,7 +209,7 @@ var MainBlock = Backbone.View.extend({
 			this.model.trigger("change:state");
 		else
 			this.model.set({state:"photos"});
-		controller.navigate("photos", true);
+		controller.navigate("/photos", true);
 	},
 	load_more:function(e)
 	{
@@ -218,7 +218,7 @@ var MainBlock = Backbone.View.extend({
 			this.model.trigger("change:state");
 		else
 			this.model.set({state:"loading"});
-		controller.navigate("photos", true);
+		controller.navigate("/photos", true);
 	},
 	open_photo:function(e)
 	{
@@ -227,7 +227,7 @@ var MainBlock = Backbone.View.extend({
 			this.model.trigger("change:state");
 		else
 			this.model.set({state:"photo_particular"});
-		controller.navigate("photos/"+appProperties.get("currentPhotoId"), true);
+		controller.navigate("/photos/"+appProperties.get("currentPhotoId"), true);
 	},
 	load_photos:function()
 	{
@@ -337,7 +337,7 @@ var MainBlock = Backbone.View.extend({
 
 var mainBlock = new MainBlock({ model: appProperties, collection:photoCollection});
 
-Backbone.history.start({pushState: true});
+Backbone.history.start({pushState: true, root:"instagram_api_test/"});
 
 	
 }
