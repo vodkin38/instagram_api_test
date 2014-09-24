@@ -151,14 +151,14 @@ var MainBlock = Backbone.View.extend({
 		var that=this;
 		this.model.bind('change:state', this.load_photos, this);
 	},
-	photos_template: _.template($('#photos').html()),
+	/*photos_template: _.template($('#photos').html()),
 	photo_particular_template: _.template($('#photo_particular').html()),
-	comment_template:_.template($('#comment').html()),
-	/*templates: {
+	comment_template:_.template($('#comment').html()),*/
+	templates: {
 		"photos": _.template($('#photos').html()),
 		"photo_particular": _.template($('#photo_particular').html()),
 		"comment":_.template($('#comment').html())
-	},*/ //SOME problems with these...too lazy to look for them
+	}, //SOME problems with these...too lazy to look for them
 	events: {
             "click #search_button": "photos",
             "keypress #tag_search": "photos",
@@ -197,7 +197,7 @@ var MainBlock = Backbone.View.extend({
 			that.commentcollection.add(comment);
 			comment.save();
 			input.val('');
-			input.parent().parent().find('.comments_section').append(that.comment_template({"comment":comment.toJSON()}));
+			input.parent().parent().find('.comments_section').append(that.templates.comment({"comment":comment.toJSON()}));
 		}
 		
 		//
@@ -231,17 +231,17 @@ var MainBlock = Backbone.View.extend({
 	},
 	load_photos:function()
 	{
-		
+		var that=this;
 		var curr_event=this.model.get("currentDomEvent");
 			var e=this.model.get("currentDomEvent");
-			var that=this;
+			
 			if(this.model.get("state")=="loading")
 			{
-				if(appProperties.get("next_url"))
+				if(that.model.get("next_url"))
 				{
 					this.collection.fetch({
 							dataType: 'jsonp',
-							url:appProperties.get("next_url"),
+							url:that.model.get("next_url"),
 							success:function()
 							{
 								that.render();
@@ -252,23 +252,23 @@ var MainBlock = Backbone.View.extend({
 			else if(this.model.get("state")=="photo_particular")
 			{
 					
-					appProperties.set({photo_particular:null});
+					that.model.set({photo_particular:null});
 					var photoId;
 					if(!this.model.get("currentPhotoId"))
 						photoId=$(this.model.get("currentDomEvent").target).attr('id');
 					else
 						photoId=this.model.get("currentPhotoId");
-					appProperties.set({currentPhotoId:photoId});
+					that.model.set({currentPhotoId:photoId});
 					var thisPhoto;
 					
-					var url_str="https://api.instagram.com/v1/media/"+photoId+"?access_token="+appProperties.get('accessToken');
+					var url_str="https://api.instagram.com/v1/media/"+photoId+"?access_token="+that.model.get('accessToken');
 							this.tempcollection.fetch({
 								dataType: 'jsonp',
 								url:url_str,
 								success:function()
 								{
-									appProperties.set({currentPhotoId:null});
-									appProperties.set({photo_particular:this.tempcollection});
+									that.model.set({currentPhotoId:null});
+									that.model.set({photo_particular:this.tempcollection});
 									that.render();
 								}
 						});
@@ -277,18 +277,18 @@ var MainBlock = Backbone.View.extend({
 			{
 				if(curr_event.keyCode==null || curr_event.keyCode==13)
 				{
-					appProperties.set({next_url:''});
+					that.model.set({next_url:''});
 					var url_str;
 					
-						appProperties.set({current_tag:$('#tag_search').val().toString()});
-						if(appProperties.get("current_tag"))
+						that.model.set({current_tag:$('#tag_search').val().toString()});
+						if(that.model.get("current_tag"))
 						{
-							url_str="https://api.instagram.com/v1/tags/"+appProperties.get("current_tag")+"/media/recent?access_token="+appProperties.get('accessToken')+"&count="+appProperties.get('photo_count');
+							url_str="https://api.instagram.com/v1/tags/"+that.model.get("current_tag")+"/media/recent?access_token="+that.model.get('accessToken')+"&count="+that.model.get('photo_count');
 							
 						}
 						else
 						{
-							url_str="https://api.instagram.com/v1/users/self/feed?access_token="+appProperties.get('accessToken')+"&count="+appProperties.get('photo_count');
+							url_str="https://api.instagram.com/v1/users/self/feed?access_token="+that.model.get('accessToken')+"&count="+that.model.get('photo_count');
 						}
 						this.collection.fetch({
 							dataType: 'jsonp',
@@ -306,22 +306,23 @@ var MainBlock = Backbone.View.extend({
 	{
 
 		
-		$('.load_button_block').removeClass('invisible');
+		
 		var that=this;
 		that.commentcollection.fetch();
-		if(appProperties.get("state")=="photos")
+		$('.load_button_block').removeClass('invisible');
+		if(that.model.get("state")=="photos")
 		{
-			$(this.el).find('.photo_area').html(that.photos_template({"photocollection":this.collection.toJSON()[0].data,"appProp":appProperties,"timeago":$.timeago,"comments":that.commentcollection.toJSON()}));
-			appProperties.set({next_url:this.collection.toJSON()[0].pagination.next_url});
+			$(this.el).find('.photo_area').html(that.templates.photos({"photocollection":this.collection.toJSON()[0].data,"appProp":that.model,"timeago":$.timeago,"comments":that.commentcollection.toJSON()}));
+			that.model.set({next_url:this.collection.toJSON()[0].pagination.next_url});
 		}
-		else if(appProperties.get("state")=="loading")
+		else if(that.model.get("state")=="loading")
 		{
-			$(this.el).find('.photo_area').append(this.photos_template({"photocollection":this.collection.toJSON()[0].data,"appProp":appProperties,"timeago":$.timeago,"comments":that.commentcollection.toJSON()}));
-			appProperties.set({next_url:this.collection.toJSON()[0].pagination.next_url});
+			$(this.el).find('.photo_area').append(this.templates.photos({"photocollection":this.collection.toJSON()[0].data,"appProp":that.model,"timeago":$.timeago,"comments":that.commentcollection.toJSON()}));
+			that.model.set({next_url:this.collection.toJSON()[0].pagination.next_url});
 		}
-		else if(appProperties.get("state")=="photo_particular")
+		else if(that.model.get("state")=="photo_particular")
 		{
-			$(this.el).find('.photo_area').html(this.photo_particular_template({"photo":this.tempcollection.toJSON()[0].data,"appProp":appProperties,"timeago":$.timeago,"comments":that.commentcollection.toJSON()}));
+			$(this.el).find('.photo_area').html(this.templates.photo_particular({"photo":this.tempcollection.toJSON()[0].data,"appProp":that.model,"timeago":$.timeago,"comments":that.commentcollection.toJSON()}));
 			$('.load_button_block').addClass('invisible');
 		}
 		
